@@ -25,10 +25,14 @@ viewer.scene.globe.depthTestAgainstTerrain = true;
 
 
 const issEntity = viewer.entities.add({
-  name: "ISS",
-  position: Cesium.Cartesian3.fromDegrees(0, 0, 0),
-  point: { pixelSize: 8, color: Cesium.Color.YELLOW }
-});
+    name: "ISS",
+    position: Cesium.Cartesian3.fromDegrees(0, 0, 0),
+    point: {
+      pixelSize: 8,
+      color: Cesium.Color.YELLOW,
+      disableDepthTestDistance: Number.POSITIVE_INFINITY 
+    }
+  });
 
 
 const popup       = document.getElementById("issPopup");
@@ -93,7 +97,7 @@ async function fetchISS() {
   }
 }
 
-// 6) Klick‐handler och hover‐cursor för popup
+
 const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
 handler.setInputAction(evt => {
   const picked = viewer.scene.pick(evt.position);
@@ -118,7 +122,7 @@ handler.setInputAction(move => {
     (Cesium.defined(picked) && picked.id === issEntity) ? 'pointer' : '';
 }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
 
-// 7) Starta polling
+
 fetchISS();
 setInterval(fetchISS, 5000);
 
