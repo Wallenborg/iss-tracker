@@ -88,3 +88,29 @@ body {
   margin-top: 8px;
 }
 
+#loadingOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: black;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 1;
+  transition: opacity 1s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#loadingOverlay.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+#loadingText {
+  color: white;
+  font-size: 2rem;
+  font-family: sans-serif;
+}

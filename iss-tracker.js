@@ -95,6 +95,7 @@ async function fetchISS() {
       );
 
       const up = Cesium.Cartesian3.normalize(cameraPos, new Cesium.Cartesian3());
+     
 
       viewer.camera.setView({
         destination: cameraPos,
@@ -108,6 +109,7 @@ async function fetchISS() {
     console.error("Kunde inte hämta ISS-data:", e);
   }
 }
+document.getElementById("loadingOverlay").classList.add("hidden");
 
 const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
 handler.setInputAction((evt) => {
