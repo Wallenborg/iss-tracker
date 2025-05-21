@@ -35,15 +35,21 @@ function createCircleImage(size, color) {
 
 
 const issEntity = viewer.entities.add({
-  name: "ISS",
-  position: Cesium.Cartesian3.fromDegrees(0, 0, 0),
-  billboard: {
-    image: createCircleImage(12, Cesium.Color.YELLOW),
-    scale: 1,
-    eyeOffset: new Cesium.Cartesian3(0, 0, -200000),
-    verticalOrigin: Cesium.VerticalOrigin.CENTER
-  }
-});
+    name: "ISS",
+    position: Cesium.Cartesian3.fromDegrees(0, 0, 0),
+    point: {
+      pixelSize: 6,
+      color: Cesium.Color.YELLOW,
+      disableDepthTestDistance: 1_000_000
+    },
+    billboard: {
+      image: createCircleImage(12, Cesium.Color.YELLOW),
+      scale: 1,
+      eyeOffset: new Cesium.Cartesian3(0, 0, -50000),
+      verticalOrigin: Cesium.VerticalOrigin.CENTER
+    }
+  });
+  
 
 
 const popup = document.getElementById("issPopup");
@@ -64,7 +70,7 @@ async function fetchISS() {
     lastLat = lat;
     lastLon = lon;
 
-    const height = 1500000;
+    const height = 500000;
     const carto = Cesium.Cartographic.fromDegrees(lon, lat, height);
     const issPos = Cesium.Ellipsoid.WGS84.cartographicToCartesian(carto);
     issEntity.position = issPos;
