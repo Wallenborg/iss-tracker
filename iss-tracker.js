@@ -1,4 +1,3 @@
-
 let lastLat = 0, lastLon = 0, popupTimeout;
 let firstView = true;
 
@@ -21,7 +20,7 @@ viewer.scene.imageryLayers.addImageryProvider(
   new Cesium.OpenStreetMapImageryProvider({ url: "https://a.tile.openstreetmap.org/" })
 );
 
-
+// 👇 Hjälpfunktion för att skapa en gul cirkel som ikon
 function createCircleImage(size, color) {
   const canvas = document.createElement('canvas');
   canvas.width = canvas.height = size;
@@ -33,25 +32,36 @@ function createCircleImage(size, color) {
   return canvas.toDataURL();
 }
 
-
+// 👇 ISS-entity (punkt + billboard)
 const issEntity = viewer.entities.add({
-    name: "ISS",
-    position: Cesium.Cartesian3.fromDegrees(0, 0, 0),
-    point: {
-      pixelSize: 6,
-      color: Cesium.Color.YELLOW,
-      disableDepthTestDistance: 1_000_000
-    },
-    billboard: {
-      image: createCircleImage(12, Cesium.Color.YELLOW),
-      scale: 1,
-      eyeOffset: new Cesium.Cartesian3(0, 0, -150000),
-      verticalOrigin: Cesium.VerticalOrigin.CENTER
-    }
-  });
-  
+  name: "ISS",
+  position: Cesium.Cartesian3.fromDegrees(0, 0, 0),
+  point: {
+    pixelSize: 6,
+    color: Cesium.Color.YELLOW,
+    disableDepthTestDistance: 1000000
+  },
+  billboard: {
+    image: createCircleImage(12, Cesium.Color.YELLOW),
+    scale: 1,
+    verticalOrigin: Cesium.VerticalOrigin.CENTER
+  }
+});
 
+// 👇 Höjdlinje mellan ISS och mark
+const issLine = viewer.entities.add({
+  polyline: {
+    positions: [
+      Cesium.Cartesian3.fromDegrees(0, 0, 0),
+      Cesium.Cartesian3.fromDegrees(0, 0, 0)
+    ],
+    width: 1,
+    material: Cesium.Color.YELLOW.withAlpha(0.3),
+    clampToGround: false
+  }
+});
 
+// 👇 Popup för info
 const popup = document.getElementById("issPopup");
 const popupClose = document.getElementById("popupClose");
 const popupContent = document.getElementById("popupContent");
@@ -61,6 +71,7 @@ popupClose.addEventListener("click", () => {
   clearTimeout(popupTimeout);
 });
 
+// 👇 Hämta ISS-position
 async function fetchISS() {
   try {
     const res = await fetch("http://api.open-notify.org/iss-now.json");
@@ -70,15 +81,21 @@ async function fetchISS() {
     lastLat = lat;
     lastLon = lon;
 
-    const height = 500000;
-    const carto = Cesium.Cartographic.fromDegrees(lon, lat, height);
-    const issPos = Cesium.Ellipsoid.WGS84.cartographicToCartesian(carto);
+    const height = 800000; // fuskar upp höjden för visuell effekt
+    const issCarto = Cesium.Cartographic.fromDegrees(lon, lat, height);
+    const issPos = Cesium.Ellipsoid.WGS84.cartographicToCartesian(issCarto);
     issEntity.position = issPos;
 
+    // 👇 Uppdatera höjdlinjen
+    issLine.polyline.positions = [
+      Cesium.Cartesian3.fromDegrees(lon, lat, 0),
+      Cesium.Cartesian3.fromDegrees(lon, lat, height)
+    ];
+
+    // 👇 Första kameravy
     if (firstView) {
       firstView = false;
 
-     
       let antipodeLat = -lat;
       let antipodeLon = lon + 180;
       if (antipodeLon > 180) antipodeLon -= 360;
@@ -108,9 +125,7 @@ async function fetchISS() {
   }
 }
 
-
-
-
+// 👇 Klicka på ISS för info-popup
 const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
 handler.setInputAction(evt => {
   const picked = viewer.scene.pick(evt.position);
@@ -129,12 +144,14 @@ handler.setInputAction(evt => {
   }
 }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
+// 👇 Muspekare när man hovrar över ISS
 handler.setInputAction(move => {
   const picked = viewer.scene.pick(move.endPosition);
   viewer.canvas.style.cursor =
     (Cesium.defined(picked) && picked.id === issEntity) ? 'pointer' : '';
 }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
 
-
+// 👇 Starta spårning
 fetchISS();
 setInterval(fetchISS, 5000);
+
