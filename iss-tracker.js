@@ -45,7 +45,7 @@ const issEntity = viewer.entities.add({
     billboard: {
       image: createCircleImage(12, Cesium.Color.YELLOW),
       scale: 1,
-      eyeOffset: new Cesium.Cartesian3(0, 0, -50000),
+      eyeOffset: new Cesium.Cartesian3(0, 0, -150000),
       verticalOrigin: Cesium.VerticalOrigin.CENTER
     }
   });
