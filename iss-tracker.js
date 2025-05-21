@@ -62,8 +62,9 @@ popupClose.addEventListener("click", () => {
 
 async function fetchISS() {
   try {
-    const res = await fetch("https://api.wheretheiss.at/v1/satellites/25544"); // alternativt API som stöder CORS bättre
+    const res = await fetch("https://api.wheretheiss.at/v1/satellites/25544");
     const json = await res.json();
+
     const lat = parseFloat(json.latitude);
     const lon = parseFloat(json.longitude);
     lastLat = lat;
@@ -74,46 +75,35 @@ async function fetchISS() {
     const issPos = Cesium.Ellipsoid.WGS84.cartographicToCartesian(carto);
     issEntity.position = issPos;
 
-    // Debug: logga för att se att höjden används
-    console.log("Live ISS höjd (meter):", height);
-    console.log("Cartesian position:", issPos);
     if (firstView) {
-        firstView = false;
-      
-        // ISS position
-        const issCarto = Cesium.Cartographic.fromDegrees(lon, lat, height);
-        const issCartesian = Cesium.Ellipsoid.WGS84.cartographicToCartesian(issCarto);
-      
-        // Kamera på motsatt sida av jorden (genom att invertera ISS-position)
-        const cameraDirection = Cesium.Cartesian3.negate(issCartesian, new Cesium.Cartesian3());
-        Cesium.Cartesian3.normalize(cameraDirection, cameraDirection);
-      
-        // Placera kameran långt ut från jordens centrum, i motsatt riktning mot ISS
-        const cameraDistance = 20000000; // cirka 4x jordradien
-        const cameraPos = Cesium.Cartesian3.multiplyByScalar(
-          cameraDirection,
-          cameraDistance,
-          new Cesium.Cartesian3()
-        );
-      
-        // Riktning mot jordens centrum (och bort från ISS)
-        const direction = Cesium.Cartesian3.normalize(
-          Cesium.Cartesian3.negate(cameraPos, new Cesium.Cartesian3()),
-          new Cesium.Cartesian3()
-        );
-      
-        // En "upp"-vektor som är vinkelrät mot riktningen
-        const up = Cesium.Cartesian3.UNIT_Z; // duger i detta fall
-      
-        viewer.camera.setView({
-          destination: cameraPos,
-          orientation: {
-            direction: direction,
-            up: up,
-          },
-        });
-      }
-      
+      firstView = false;
+
+      const antipodeLat = -lat;
+      let antipodeLon = lon + 180;
+      if (antipodeLon > 180) antipodeLon -= 360;
+
+      const surfaceCarto = Cesium.Cartographic.fromDegrees(antipodeLon, antipodeLat, 0);
+      const surfacePos = Cesium.Ellipsoid.WGS84.cartographicToCartesian(surfaceCarto);
+
+      const R = viewer.scene.globe.ellipsoid.maximumRadius;
+      const directionFromCenter = Cesium.Cartesian3.normalize(surfacePos, new Cesium.Cartesian3());
+      const cameraPos = Cesium.Cartesian3.multiplyByScalar(directionFromCenter, R * 4, new Cesium.Cartesian3());
+
+      const direction = Cesium.Cartesian3.normalize(
+        Cesium.Cartesian3.negate(cameraPos, new Cesium.Cartesian3()),
+        new Cesium.Cartesian3()
+      );
+
+      const up = Cesium.Cartesian3.normalize(cameraPos, new Cesium.Cartesian3());
+
+      viewer.camera.setView({
+        destination: cameraPos,
+        orientation: {
+          direction: direction,
+          up: up,
+        },
+      });
+    }
   } catch (e) {
     console.error("Kunde inte hämta ISS-data:", e);
   }
@@ -145,8 +135,5 @@ handler.setInputAction((move) => {
     Cesium.defined(picked) && picked.id === issEntity ? "pointer" : "";
 }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
 
-// 👇 Kör fetch först när globen är redo
-viewer.scene.globe.readyPromise.then(() => {
-  fetchISS();
-  setInterval(fetchISS, 5000);
-});
+fetchISS();
+setInterval(fetchISS, 5000);
