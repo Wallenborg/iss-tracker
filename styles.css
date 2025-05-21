@@ -59,6 +59,7 @@ body {
   padding: 16px;
   border-radius: 8px;
   max-width: 80%;
+  width: 300px;
   z-index: 2;
 }
 #issPopup.hidden {
@@ -114,3 +115,5 @@ body {
   font-size: 2rem;
   font-family: sans-serif;
 }
+
+

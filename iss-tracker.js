@@ -39,7 +39,7 @@ const issEntity = viewer.entities.add({
   name: "ISS",
   position: Cesium.Cartesian3.fromDegrees(0, 0, 500000),
   point: {
-    pixelSize: 6,
+    pixelSize: 5,
     color: Cesium.Color.YELLOW,
     disableDepthTestDistance: 1_000_000,
   },
