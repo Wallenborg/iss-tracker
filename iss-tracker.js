@@ -21,7 +21,7 @@ const viewer = new Cesium.Viewer("cesiumContainer", {
 viewer.scene.imageryLayers.addImageryProvider(
   new Cesium.OpenStreetMapImageryProvider({ url: "https://a.tile.openstreetmap.org/" })
 );
-viewer.scene.globe.depthTestAgainstTerrain = true;
+// viewer.scene.globe.depthTestAgainstTerrain = true;
 
 
 const issEntity = viewer.entities.add({
@@ -30,7 +30,7 @@ const issEntity = viewer.entities.add({
     point: {
       pixelSize: 8,
       color: Cesium.Color.YELLOW,
-      disableDepthTestDistance: Number.POSITIVE_INFINITY 
+     
     }
   });
 
@@ -53,7 +53,7 @@ async function fetchISS() {
     lastLat = lat; lastLon = lon;
 
    
-    const height = 400000; 
+    const height = 500000; 
     const carto  = Cesium.Cartographic.fromDegrees(lon, lat, height);
     const issPos = Cesium.Ellipsoid.WGS84.cartographicToCartesian(carto);
     issEntity.position = issPos;
