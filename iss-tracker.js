@@ -21,7 +21,7 @@ const viewer = new Cesium.Viewer("cesiumContainer", {
 viewer.scene.imageryLayers.addImageryProvider(
   new Cesium.OpenStreetMapImageryProvider({ url: "https://a.tile.openstreetmap.org/" })
 );
-viewer.scene.globe.depthTestAgainstTerrain = true;
+// viewer.scene.globe.depthTestAgainstTerrain = true;
 
 
 const issEntity = viewer.entities.add({
