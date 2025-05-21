@@ -64,7 +64,7 @@ async function fetchISS() {
     lastLat = lat;
     lastLon = lon;
 
-    const height = 600000;
+    const height = 1500000;
     const carto = Cesium.Cartographic.fromDegrees(lon, lat, height);
     const issPos = Cesium.Ellipsoid.WGS84.cartographicToCartesian(carto);
     issEntity.position = issPos;
