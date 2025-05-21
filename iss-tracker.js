@@ -30,6 +30,8 @@ const issEntity = viewer.entities.add({
     point: {
       pixelSize: 8,
       color: Cesium.Color.YELLOW,
+      disableDepthTestDistance: 1000000
+
      
     }
   });
